@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>全民留言板</title>
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/index1.css">
+    <script src="js/jquery-1.11.0.min.js"></script>
+    <script>
+        $(function(){
+            //1、留言班功能实现
+            // 1.2刷新头像
+            var facestr="";
+            for(var i=1;i<=42;i++){
+                facestr+='<option value="'+i+'.gif">'+i+'.gif</option>';
+            }
+            $("#face").html(facestr).change(function(){
+                var _this=$(this);
+                console.log(_this);
+                $("#img1").attr("src","img/face/"+_this.val());
+            });
+            // 弹出留言框框
+            $("#fabiao").click(function(){
+                $("#liuyan").show();
+            });  
+            // 关闭留言框
+            $("#quxiao").click(function(){
+                $("#author").val("");
+                $("#leaveContent").val("");
+                $("#liuyan").hide();
+            });
+            $("#tijiao").click(()=>{
+                if($("#leaveContent").val()=="" || $("#author").val() == ""){
+                    alert("内容不能为空");
+                }else{
+                $.ajax({
+                    url:"leavemessage.php",
+                    type:"POST",
+                    data:{author:$("#author").val(),content:$("#leaveContent").val(),face:$("#face").val()},
+                    dataType:"json",
+                    success:function(data){
+                        if(data.status == "10001"){
+                            $("#liuyan").hide();
+                            $("#author").html("");
+                            $("#leaveContent").html("");
+                            alert("留言发布成功！等待管理员审核");
+                            $("#author").val("");
+                            $("#leaveContent").val("");
+                        }else{
+                            alert(data.message);
+                        }
+                    }
+                })}
+            });
+            //总记录数
+            var rscount = 0;
+            //总页数；
+            var pagecount = 1;
+            //页数 
+            var page = 1;
+            // 初始化总记录树和页数
+            $.ajax({
+                url:"rscount.php",
+                type:"post",
+                dataType:"json",
+                success:function(data){
+                    rscount = data.rscount;
+                    pagecount = Math.ceil(rscount/6);
+                    $("#pagecount").text(pagecount);
+                    $("#page").text(page);
+                }
+            });
+            // 页面初始化，显示留言内容
+            $.ajax({
+                url:"message.php",
+                type:"post",
+                data:{page:page}, 
+                dataType:"json",
+                cache:false,
+                success:function(data){
+                    var mydata = data.data;
+                    for(var i = 0 ; i < mydata.length;i++){
+                        $(".content_box").eq(i).show();
+                        $(".box_face_img").eq(i).attr("src","img/face/"+mydata[i].face);
+                        $(".box_author").eq(i).text(mydata[i].author);
+                        $(".box_time").eq(i).text(mydata[i].addTime);
+                        $(".box_leaveContent").eq(i).text(mydata[i].content);
+                        if(mydata[i].reply){
+                            $(".box_ready").eq(i).text(mydata[i].reply);
+                        }else{
+                            $(".box_ready").eq(i).hide();
+                            $(".box_aaa").eq(i).hide();
+                        }          
+                    }   
+                }
+            });
+            // 上一页操作
+            $("#upbtn").click(()=>{
+               
+                if(page > 1){
+                    $(".content_box").hide();
+                    page--;
+                    $("#page").text(page);
+                    $.ajax({
+                        url:"message.php",
+                        type:"post",
+                        data:{page:page}, 
+                        dataType:"json",
+                        cache:false,
+                        success:function(data){
+                            var mydata = data.data;
+                            for(var i = 0 ; i < mydata.length;i++){
+                                $(".content_box").eq(i).show();
+                                $(".box_face_img").eq(i).attr("src","img/face/"+mydata[i].face);
+                                $(".box_author").eq(i).text(mydata[i].author);
+                                $(".box_time").eq(i).text(mydata[i].addTime);
+                                $(".box_leaveContent").eq(i).text(mydata[i].content);
+                                if(mydata[i].reply){
+                                    $(".box_ready").eq(i).text(mydata[i].reply);
+                                }else{
+                                    $(".box_ready").eq(i).hide();
+                                    $(".box_aaa").eq(i).hide();
+                                }          
+                            }   
+                        }
+                    });
+                }
+            });
+            //下一页操作
+            $("#dowbtn").click(()=>{
+                if(page < pagecount){
+                    $(".content_box").hide();
+                    page++;
+                    $("#page").text(page);
+                    $.ajax({
+                        url:"message.php",
+                        type:"post",
+                        data:{page:page}, 
+                        dataType:"json",
+                        cache:false,
+                        success:function(data){
+                            var mydata = data.data;
+                            for(var i = 0 ; i < mydata.length;i++){
+                                $(".content_box").eq(i).show();
+                                $(".box_face_img").eq(i).attr("src","img/face/"+mydata[i].face);
+                                $(".box_author").eq(i).text(mydata[i].author);
+                                $(".box_time").eq(i).text(mydata[i].addTime);
+                                $(".box_leaveContent").eq(i).text(mydata[i].content);
+                                if(mydata[i].reply){
+                                    $(".box_ready").eq(i).text(mydata[i].reply);
+                                }else{
+                                    $(".box_ready").eq(i).hide();
+                                    $(".box_aaa").eq(i).hide();
+                                }          
+                            }   
+                        }
+                    });  
+                }
+            });
+            $("#login").click(()=>{
+                window.location.href="admin/login.html";
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="container">
+        <div id="top">
+            <div id="top_left" class="pointer">
+                <img src="img/top_logo.png">
+            </div>
+            <div id="top_right" class="pointer">
+                <div id="fabiao">发表留言</div
+                ><div id="login">管理员登录</div>
+            </div>
+        </div>
+        <div id="zhanshi">
+            <h2>实现 <span style="color: #ed563b;">干饭自由</span></h2>
+            <img src="img/line-dec.png" alt="">
+            <p>进步和成长的过程总是有许多的困难与坎坷的。有时我们是由于志向不明，没有明确的目的而碌碌无为。但是还有另外一种情况，是由于我们自己的退缩，与自己“亲密”的妥协没有坚持到底的意志，才使得机会逝去，颗粒无收。</p>
+        </div>
+        <div id="con_content">
+            <div class="content_box">
+                <div class="box_face"><img class ="box_face_img" src="img/face/1.gif"></div>
+                <div class="box_content">
+                    <span class="box_author">小田</span>&nbsp;&nbsp;<span class="box_time">2020/1/03/34</span>
+                    <p class="box_leaveContent">今天气真不错啊哈哈哈哈啊哈哈哈哈哈安哈和lalala alla ala </p>
+                    <span class="box_aaa">管理员回复：</span><span class="box_ready">出去玩吗?约一约</span>
+                </div>
+            </div>
+            <div class="content_box">
+                <div class="box_face"><img class ="box_face_img" src="img/face/1.gif"></div>
+                <div class="box_content">
+                    <span class="box_author">小田</span>&nbsp;&nbsp;<span class="box_time">2020/1/03/34</span>
+                    <p class="box_leaveContent">今天气真不错啊哈哈哈哈啊哈哈哈哈哈安哈和lalala alla ala </p>
+                    <span class="box_aaa">管理员回复：</span><span class="box_ready">出去玩吗?约一约</span>
+                </div>
+            </div>
+            <div class="content_box">
+                <div class="box_face"><img class ="box_face_img" src="img/face/1.gif"></div>
+                <div class="box_content">
+                    <span class="box_author">小田</span>&nbsp;&nbsp;<span class="box_time">2020/1/03/34</span>
+                    <p class="box_leaveContent">今天气真不错啊哈哈哈哈啊哈哈哈哈哈安哈和lalala alla ala </p>
+                    <span class="box_aaa">管理员回复：</span><span class="box_ready">出去玩吗?约一约</span>
+                </div>
+            </div>
+            <div class="content_box">
+                <div class="box_face"><img class ="box_face_img" src="img/face/1.gif"></div>
+                <div class="box_content">
+                    <span class="box_author">小田</span>&nbsp;&nbsp;<span class="box_time">2020/1/03/34</span>
+                    <p class="box_leaveContent">今天气真不错啊哈哈哈哈啊哈哈哈哈哈安哈和lalala alla ala </p>
+                    <span class="box_aaa">管理员回复：</span><span class="box_ready">出去玩吗?约一约</span>
+                </div>
+            </div>
+            <div class="content_box">
+                <div class="box_face"><img class ="box_face_img" src="img/face/1.gif"></div>
+                <div class="box_content">
+                    <span class="box_author">小田</span>&nbsp;&nbsp;<span class="box_time">2020/1/03/34</span>
+                    <p class="box_leaveContent">今天气真不错啊哈哈哈哈啊哈哈哈哈哈安哈和lalala alla ala </p>
+                    <span class="box_aaa">管理员回复：</span><span class="box_ready">出去玩吗?约一约</span>
+                </div>
+            </div>
+            <div class="content_box">
+                <div class="box_face"><img class ="box_face_img" src="img/face/1.gif" alt=""></div>
+                <div class="box_content">
+                    <span class="box_author">啦啦啦</span>&nbsp;&nbsp;<span class="box_time">啊打发十分安顿</span>
+                    <p class="box_leaveContent">安顿啊阿斯顿发撒是否昂是阿三士大夫</p>
+                    <span class="box_aaa">管理员回复：</span><span class="box_ready">阿斯顿发生啊手动阀案说法</span>
+                </div>
+            </div> 
+            <div id="pagebtn">
+                <p>共<span id="pagecount">3</span>页，第<span id="page">1</span>页</p>
+                <div id="dowbtn" class="pointer">下一页</div>
+                <div id="upbtn" class="pointer">上一页</div>
+                
+                
+            </div>
+        </div>
+        <div id="footer">
+            <p>Copyright © 2021 Tlay!996 <span style="color: #ed563b;">biu~biu~</span></p>
+        </div>
+    </div>
+    <!-- 提交留言开始 -->
+    <div id="liuyan">
+        <div id="content">
+            <input type="text" id="author" placeholder="昵称" autocomplete="off" width="">
+            <select id="face">
+            </select>
+            <img id="img1" src="img/face/1.gif" width="30" />
+            <textarea id="leaveContent" rows="6" placeholder="输入留言"></textarea>
+            <div id="liuyan_btn">
+                <div id="tijiao">发布</div>
+                <div id="quxiao">取消</div>
+            </div>
+        </div>
+    </div>
+    <!-- 提交留言结束 -->
+</body>
+</html>

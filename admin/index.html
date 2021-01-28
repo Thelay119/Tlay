@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理界面</title>
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="css/index.css">
+    <script src="js/echarts.min.js"></script>
+    <script src="../js/jquery-1.11.0.min.js"></script>
+    <script>
+        $(function(){
+            //需要的数据
+            var pagecount = 1;
+            var page = 1;
+            //点击注销
+            $("#zhuxiao").click(function(){
+                location.href="../index.html";
+                localStorage.removeItem("jwt");
+            });
+            // jwt权限鉴定
+            $.ajax({
+                url:"check.php",
+                type:"GET",
+                cache:false,
+                headers:{"token":localStorage.getItem("jwt")},
+                dataType:"json",
+                success:function(data){
+                    if(data.result == "success"){
+                        $("#adminName").text(data.info.data.adminName);
+                    }else{
+                        location.href="../error.html";
+                    }
+                }
+            });
+            // 获取各种数值，初始化可视图
+            var shuchushihua = function(){
+                $.ajax({
+                url:"rscount.php",
+                type:"post",
+                dataType:"json",
+                success:function(data){
+                    $("#rscount").text(data.rscount);
+                    $("#rs1").text(data.rs1);
+                    $("#rs0").text(data.rs0);
+                    $("#readycount").text(data.readycount);
+                    pagecount = Math.ceil(data.rs1 / 8);
+                    $("#pagecount").text(pagecount);
+                    var chartDom = document.getElementById('main');
+                    var myChart = echarts.init(chartDom);
+                    var option;
+                    option = {
+                        title: {
+                            text: '留言板后台数据',
+                            left: 'center'
+                        },
+                        tooltip: {
+                            trigger: 'item'
+                        },
+                        legend: {
+                            orient: 'vertical',
+                            left: 'left',
+                        },
+                        series: [
+                            {
+                                name: '后台数据',
+                                type: 'pie',
+                                radius: '50%',
+                                data: [
+                                    {value: data.rscount, name: '总记录数'},
+                                    {value: data.rs1, name: '已审核'},
+                                    {value: data.rs0, name: '未审核'},
+                                    {value: data.readycount, name: '已回复'},
+                                ],
+                                emphasis: {
+                                    itemStyle: {
+                                        shadowBlur: 10,
+                                        shadowOffsetX: 0,
+                                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                    }
+                                }
+                            }
+                        ]
+                    };
+                    option && myChart.setOption(option);
+                }
+            });
+            }
+            shuchushihua();
+            //记录初始化
+            var jiluchushihua = function(){
+                $.ajax({
+                    url:"message.php",
+                    type:"post",
+                    data:{page:page},
+                    dataType:"json",
+                    cache:false,
+                    success:function(data){
+                        $(".content_box").hide();
+                        var mydata = data.data;
+                        for(var i = 0 ; i < mydata.length;i++){
+                            $(".content_box").eq(i).show();
+                            $(".box_face_img").eq(i).attr("src","img/face/"+mydata[i].face);
+                            $(".box_author").eq(i).text(mydata[i].author);
+                            $(".box_time").eq(i).text(mydata[i].addTime);
+                            $(".box_leaveContent").eq(i).text(mydata[i].content);
+                            $(".box_ready").eq(i).attr("value",mydata[i].reply);
+                            $(".delete_btn").eq(i).attr("deleteId",mydata[i].messageId);
+                            $(".ready_btn").eq(i).attr("readyId",mydata[i].messageId);
+                        } 
+                    }
+                });
+            }
+            jiluchushihua();
+            // 上一页操作
+            $("#upbtn").click(()=>{
+               
+               if(page > 1){
+                   $(".content_box").hide();
+                   page--;
+                   $("#page").text(page);
+                   $.ajax({
+                       url:"message.php",
+                       type:"post",
+                       data:{page:page}, 
+                       dataType:"json",
+                       cache:false,
+                       success:function(data){  
+                            var mydata = data.data;
+                            for(var i = 0 ; i < mydata.length;i++){
+                                $(".content_box").eq(i).show();
+                                $(".box_face_img").eq(i).attr("src","img/face/"+mydata[i].face);
+                                $(".box_author").eq(i).text(mydata[i].author);
+                                $(".box_time").eq(i).text(mydata[i].addTime);
+                                $(".box_leaveContent").eq(i).text(mydata[i].content);
+                                $(".box_ready").eq(i).attr("value",mydata[i].reply);       
+                            }
+                       }
+                   });
+               }
+           });
+           //下一页操作
+           $("#dowbtn").click(()=>{
+               if(page < pagecount){
+                   $(".content_box").hide();
+                   page++;
+                   $("#page").text(page);
+                   $.ajax({
+                       url:"message.php",
+                       type:"post",
+                       data:{page:page}, 
+                       dataType:"json",
+                       cache:false,
+                       success:function(data){  
+                            var mydata = data.data;
+                            for(var i = 0 ; i < mydata.length;i++){
+                                $(".content_box").eq(i).show();
+                                $(".box_face_img").eq(i).attr("src","img/face/"+mydata[i].face);
+                                $(".box_author").eq(i).text(mydata[i].author);
+                                $(".box_time").eq(i).text(mydata[i].addTime);
+                                $(".box_leaveContent").eq(i).text(mydata[i].content);
+                                $(".box_ready").eq(i).attr("value",mydata[i].reply);       
+                            }
+                       }
+                   });  
+               }
+            });
+            //点击删除
+            
+            $(".delete_btn").click(function(e){
+                var _this = $(this);
+                $.ajax({
+                    url:"delete.php",
+                    type:"post",
+                    data:{messageId:_this.attr("deleteId")},
+                    dataType:"json",
+                    success:function(data){
+                        if(data.status=="10001"){
+                            jiluchushihua();
+                            shuchushihua();
+                        }else{
+                            alert(data.msg);
+                        }
+                    }
+                });
+            });
+            //点击回复
+            
+            $(".ready_btn").click(function(){
+                var replyss = $(this).siblings("input").val();
+                var _this = $(this);
+                if(replyss){
+                    $.ajax({
+                        url:'reply.php',
+                        type:'post',
+                        dataType:'json',
+                        data:{messageId:_this.attr("readyId"),reply:replyss},
+                        success:function(data){
+                            if(data.status == "10001"){
+                                alert(data.msg);
+                            }else{
+                                alert(data.msg);
+                            }
+                        }
+                    });
+                }else{
+                    alert("你倒是写上留言再回复啊！");
+                }
+            })
+            //视图开关
+            $("#fabiao").click(function(){
+                $("#zhanshi").toggle();
+            });
+        });
+    </script>
+    <script>
+        window.onload=function(){
+        }
+    </script>
+</head>
+<body>
+    <div id="container">
+        <div id="top">
+            <div id="top_left" class="pointer">
+                <img width="20" src="img/管理员_icon.png">&nbsp;&nbsp;<span id="adminName"></span>
+                <br><a href="../index.html" id="zhuxiao">点击注销</a>
+            </div>
+            <div id="top_right" >
+                <div id="fabiao" class="pointer"><input type="button" value="可视开关"></div>
+                <div id="login" class="pointer"><a href="index_x.html" style="color: #fff;">留言审核</a> </div>
+            </div>
+        </div>
+        <div id="zhanshi">
+            <div id="jilu">
+                <ul>
+                    <li><span>总留言：</span><span style="color: #231e1e;" id="rscount">00</span></li>
+                    <li><span>已审核：</span><span style="color: #231e1e;" id="rs1">00</span></li>
+                    <li><span>未审核：</span><span style="color: #231e1e;" id="rs0">00</span></li>
+                    <li><span>已回复：</span><span style="color: #231e1e;" id="readycount">00</span></li>
+                </ul>
+            </div>
+            <div id="main" style="width: 700px;height:400px; float: right;"></div>
+        </div>
+        <div id="con_content">
+            <div class="content_box">
+                <div class="box_face"><img class ="box_face_img" src="img/face/1.gif">
+                    <button class="delete_btn">点击删除</button>
+                </div>
+                <div class="box_content">
+                    <span class="box_author"></span>&nbsp;&nbsp;<span class="box_time"></span>
+                    <p class="box_leaveContent"></p>
+                    <span class="box_aaa">管理员回复：</span> <input type="text" class="box_ready">&nbsp;&nbsp;&nbsp;<input type="button" class="ready_btn" value="回复">
+                </div>
+            </div>
+            <div class="content_box">
+                <div class="box_face"><img class ="box_face_img" src="img/face/1.gif">
+                    <button class="delete_btn">点击删除</button>
+                </div>
+                <div class="box_content">
+                    <span class="box_author"></span>&nbsp;&nbsp;<span class="box_time"></span>
+                    <p class="box_leaveContent"></p>
+                    <span class="box_aaa">管理员回复：</span> <input type="text" class="box_ready">&nbsp;&nbsp;&nbsp;<input type="button" class="ready_btn" value="回复">
+                </div>
+            </div>
+            <div class="content_box">
+                <div class="box_face"><img class ="box_face_img" src="img/face/1.gif">
+                    <button class="delete_btn">点击删除</button>
+                </div>
+                <div class="box_content">
+                    <span class="box_author"></span>&nbsp;&nbsp;<span class="box_time"></span>
+                    <p class="box_leaveContent"></p>
+                    <span class="box_aaa">管理员回复：</span> <input type="text" class="box_ready">&nbsp;&nbsp;&nbsp;<input type="button" class="ready_btn" value="回复">
+                </div>
+            </div>
+            <div class="content_box">
+                <div class="box_face"><img class ="box_face_img" src="img/face/1.gif">
+                    <button class="delete_btn">点击删除</button>
+                </div>
+                <div class="box_content">
+                    <span class="box_author"></span>&nbsp;&nbsp;<span class="box_time"></span>
+                    <p class="box_leaveContent"></p>
+                    <span class="box_aaa">管理员回复：</span> <input type="text" class="box_ready">&nbsp;&nbsp;&nbsp;<input type="button" class="ready_btn" value="回复">                </div>
+            </div>
+            <div class="content_box">
+                <div class="box_face"><img class ="box_face_img" src="img/face/1.gif">
+                    <button class="delete_btn">点击删除</button>
+                </div>
+                <div class="box_content">
+                    <span class="box_author"></span>&nbsp;&nbsp;<span class="box_time"></span>
+                    <p class="box_leaveContent"></p>
+                    <span class="box_aaa">管理员回复：</span> <input type="text" class="box_ready">&nbsp;&nbsp;&nbsp;<input type="button" class="ready_btn" value="回复">
+                </div>
+            </div>
+            <div class="content_box">
+                <div class="box_face"><img class ="box_face_img" src="img/face/1.gif" alt="">
+                    <button class="delete_btn">点击删除</button>
+                </div>
+                <div class="box_content">
+                    <span class="box_author"></span>&nbsp;&nbsp;<span class="box_time"></span>
+                    <p class="box_leaveContent"></p>
+                    <span class="box_aaa">管理员回复：</span> <input type="text" class="box_ready">&nbsp;&nbsp;&nbsp;<input type="button" class="ready_btn" value="回复">
+                </div>
+            </div> 
+            <div class="content_box">
+                <div class="box_face"><img class ="box_face_img" src="img/face/1.gif">
+                    <button class="delete_btn">点击删除</button>
+                </div>
+                <div class="box_content">
+                    <span class="box_author"></span>&nbsp;&nbsp;<span class="box_time"></span>
+                    <p class="box_leaveContent"></p>
+                    <span class="box_aaa">管理员回复：</span> <input type="text" class="box_ready">&nbsp;&nbsp;&nbsp;<input type="button" class="ready_btn" value="回复">
+                </div>
+            </div>
+            <div class="content_box">
+                <div class="box_face"><img class ="box_face_img" src="img/face/1.gif" alt="">
+                    <button class="delete_btn">点击删除</button>
+                </div>
+                <div class="box_content">
+                    <span class="box_author"></span>&nbsp;&nbsp;<span class="box_time"></span>
+                    <p class="box_leaveContent"></p>
+                    <span class="box_aaa">管理员回复：</span> <input type="text" class="box_ready">&nbsp;&nbsp;&nbsp;<input type="button" class="ready_btn" value="回复">
+                </div>
+            </div> 
+            <div id="pagebtn">
+                <p>共<span id="pagecount">3</span>页，第<span id="page">1</span>页</p>
+                <div id="dowbtn" class="pointer">下一页</div>
+                <div id="upbtn" class="pointer">上一页</div>
+            </div>
+        </div>
+        <div id="footer">
+            <p>Copyright © 2021 Tlay!996 <span style="color: #ed563b;">biu~biu~</span></p>
+        </div>
+    </div>
+</body>
+</html>

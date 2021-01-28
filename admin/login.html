@@ -1,0 +1,57 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>Home</title>
+<meta charset="UTF-8">
+<link href="css/style.css" rel="stylesheet" type="text/css" media="all"/>
+<script src="../js/jquery-1.11.0.min.js"></script>
+<script>
+	$(function(){
+        $("#btn").click(function(){
+            $.ajax({
+                url:"check.php?action=login",
+                type:"post",
+                data:{adminName:$("#adminName").val(),adminPwd:$("#adminPwd").val()},
+                dataType:"json",
+                success:function(data){
+					console.log(data);
+                    if(data.result=="success"){
+                        localStorage.setItem("jwt",data.jwt);
+                        location.href="index.html";
+                    }else{
+						$("#tips").text(data.result);
+					}
+                }
+            });
+		});
+		$("#adminName").focus(function(){
+			$("#tips").text("");
+		});
+		$("#adminPwd").focus(()=>{
+			$("#tips").text("");
+		})
+	});
+</script>
+</head>
+<body>
+<div class="login">
+	<h2></h2>
+	<div class="login-top">
+		<h1>管理员登录</h1>
+		<form>
+			<input type="text" id="adminName" placeholder="输入帐号" autocomplete="off"  >
+			<input type="password"  id="adminPwd"placeholder="输入密码" autocomplete="off">
+	    </form>
+	    <div class="forgot">
+	    	<a href="#">忘记密码</a>
+	    	<input type="submit" value="登录" id="btn" >
+	    </div>
+	</div>
+	<div class="login-bottom">
+		<span id="tips" style="font-size: 20px; color: #fff;"></span>
+	</div>
+</div>	
+<div class="copyright">
+</div>
+</body>
+</html>

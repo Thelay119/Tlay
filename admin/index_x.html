@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>后台管理界面</title>
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="css/index_x.css">
+    <script src="js/echarts.min.js"></script>
+    <script src="../js/jquery-1.11.0.min.js"></script>
+    <script>
+        $(function(){
+            //需要的数据
+            var pagecount = 1;
+            var page = 1;
+            //点击注销
+            $("#zhuxiao").click(function(){
+                location.href="../index.html";
+                localStorage.removeItem("jwt");
+            });
+            // jwt权限鉴定
+            $.ajax({
+                url:"check.php",
+                type:"GET",
+                cache:false,
+                headers:{"token":localStorage.getItem("jwt")},
+                dataType:"json",
+                success:function(data){
+                    if(data.result == "success"){
+                        $("#adminName").text(data.info.data.adminName);
+                    }else{
+                        location.href="../error.html";
+                    }
+                }
+            });
+            var shuchushihua =function(){
+                $.ajax({
+                url:"rscount_x.php",
+                type:"post",
+                dataType:"json",
+                success:function(data){
+                    pagecount = Math.ceil(data.rs0 / 8);
+                    $("#pagecount").text(pagecount);
+                    $("#page").text(page);
+                }
+            });
+            }
+            shuchushihua();
+            //记录初始化
+            var jiluchushihua = function(){
+                $.ajax({
+                    url:"message_x.php",
+                    type:"post",
+                    data:{page:page},
+                    dataType:"json",
+                    cache:false,
+                    success:function(data){
+                        $(".content_box").hide();
+                        var mydata = data.data;
+                        for(var i = 0 ; i < mydata.length;i++){
+                            $(".content_box").eq(i).show();
+                            $(".box_face_img").eq(i).attr("src","img/face/"+mydata[i].face);
+                            $(".box_author").eq(i).text(mydata[i].author);
+                            $(".box_time").eq(i).text(mydata[i].addTime);
+                            $(".box_leaveContent").eq(i).text(mydata[i].content);
+                            $(".delete_btn").eq(i).attr("deleteId",mydata[i].messageId);
+                            $(".tgId").eq(i).attr("tgId",mydata[i].messageId);
+                        } 
+                    }
+                });
+            }
+            jiluchushihua();
+            // 上一页操作
+            $("#upbtn").click(()=>{
+               if(page > 1){
+                   page--;
+                   $("#page").text(page);
+                   jiluchushihua();
+               }
+           });
+           //下一页操作
+           $("#dowbtn").click(()=>{
+               if(page < pagecount){
+                   page++;
+                   $("#page").text(page);
+                   jiluchushihua();
+               }
+            });
+            //点击删除
+            $(".delete_btn").click(function(e){
+                var _this = $(this);
+                $.ajax({
+                    url:"delete.php",
+                    type:"post",
+                    data:{messageId:_this.attr("deleteId")},
+                    dataType:"json",
+                    success:function(data){
+                        if(data.status=="10001"){
+                            jiluchushihua();
+                            shuchushihua();
+                        }else{
+                            alert(data.msg);
+                        }
+                    }
+                });
+            });
+            //点击审核通过
+            $(".tgId").click(function(){
+                var _this = $(this);
+                    $.ajax({
+                        url:'sh.php',
+                        type:'post',
+                        dataType:'json',
+                        data:{messageId:_this.attr("tgid")},
+                        success:function(data){
+                            if(data.status == "10001"){
+                                jiluchushihua();
+                            }else{
+                                alert(data.msg);
+                            }
+                        }
+                    });
+            })
+        });
+    </script>
+</head>
+<body>
+    <div id="container">
+        <div id="top">
+            <div id="top_left" class="pointer">
+                <img width="20" src="img/管理员_icon.png">&nbsp;&nbsp;<span id="adminName">lalaal</span>
+                <br><a href="../index.html" id="zhuxiao">点击注销</a>
+            </div>
+            <div id="top_right" >
+                <div id="fabiao" class="pointer"><a href="index.html" style="color: #fff;">管理主页</a></div>
+                <div id="login" class="pointer" style="opacity: 0.5;">留言审核</div>
+            </div>
+        </div>
+        <div id="con_content">
+            <div class="content_box">
+                <div class="box_face"><img class ="box_face_img" src="img/face/1.gif">
+                    <button class="delete_btn">点击删除</button>
+                </div>
+                <div class="box_content">
+                    <span class="box_author"></span>&nbsp;&nbsp;<span class="box_time"></span>
+                    <p class="box_leaveContent"></p>
+                    <a href="javascript:;" class="tgId">审核通过</a>
+                </div>
+            </div>
+            <div class="content_box">
+                <div class="box_face"><img class ="box_face_img" src="img/face/1.gif">
+                    <button class="delete_btn">点击删除</button>
+                </div>
+                <div class="box_content">
+                    <span class="box_author"></span>&nbsp;&nbsp;<span class="box_time"></span>
+                    <p class="box_leaveContent"></p>
+                    <a href="javascript:;" class="tgId">审核通过</a>
+                </div>
+            </div>
+            <div class="content_box">
+                <div class="box_face"><img class ="box_face_img" src="img/face/1.gif">
+                    <button class="delete_btn">点击删除</button>
+                </div>
+                <div class="box_content">
+                    <span class="box_author"></span>&nbsp;&nbsp;<span class="box_time"></span>
+                    <p class="box_leaveContent"></p>
+                    <a href="javascript:;" class="tgId">审核通过</a>
+                </div>
+            </div>
+            <div class="content_box">
+                <div class="box_face"><img class ="box_face_img" src="img/face/1.gif">
+                    <button class="delete_btn">点击删除</button>
+                </div>
+                <div class="box_content">
+                    <span class="box_author"></span>&nbsp;&nbsp;<span class="box_time"></span>
+                    <p class="box_leaveContent"></p>
+                    <a href="javascript:;" class="tgId">审核通过</a>
+                </div>
+            </div>
+            <div class="content_box">
+                <div class="box_face"><img class ="box_face_img" src="img/face/1.gif">
+                    <button class="delete_btn">点击删除</button>
+                </div>
+                <div class="box_content">
+                    <span class="box_author"></span>&nbsp;&nbsp;<span class="box_time"></span>
+                    <p class="box_leaveContent"></p>
+                    <a href="javascript:;" class="tgId">审核通过</a>
+                </div>
+            </div>
+            <div class="content_box">
+                <div class="box_face"><img class ="box_face_img" src="img/face/1.gif" alt="">
+                    <button class="delete_btn">点击删除</button>
+                </div>
+                <div class="box_content">
+                    <span class="box_author"></span>&nbsp;&nbsp;<span class="box_time"></span>
+                    <p class="box_leaveContent"></p>
+                    <a href="javascript:;" class="tgId">审核通过</a>
+                </div>
+            </div> 
+            <div class="content_box">
+                <div class="box_face"><img class ="box_face_img" src="img/face/1.gif">
+                    <button class="delete_btn">点击删除</button>
+                </div>
+                <div class="box_content">
+                    <span class="box_author"></span>&nbsp;&nbsp;<span class="box_time"></span>
+                    <p class="box_leaveContent"></p>
+                    <a href="javascript:;" class="tgId">审核通过</a>
+                </div>
+            </div>
+            <div class="content_box">
+                <div class="box_face"><img class ="box_face_img" src="img/face/1.gif" alt="">
+                    <button class="delete_btn">点击删除</button>
+                </div>
+                <div class="box_content">
+                    <span class="box_author"></span>&nbsp;&nbsp;<span class="box_time"></span>
+                    <p class="box_leaveContent"></p>
+                    <a href="javascript:;" class="tgId">审核通过</a>
+                </div>
+            </div> 
+            <div id="pagebtn">
+                <p>共<span id="pagecount"></span>页，第<span id="page"></span>页</p>
+                <div id="dowbtn" class="pointer">下一页</div>
+                <div id="upbtn" class="pointer">上一页</div>
+            </div>
+        </div>
+        <div id="footer">
+            <p>Copyright © 2021 Tlay!996 <span style="color: #ed563b;">biu~biu~</span></p>
+        </div>
+    </div>
+</body>
+</html>

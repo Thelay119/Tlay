@@ -1,0 +1,15 @@
+body,h1,h2,h3,h4,h5,h6,p,dl,dd{
+    margin: 0px;
+}
+ul,ol{
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
+}
+a{
+    text-decoration: none;
+}
+img{
+    border:none;
+    vertical-align: top;
+}

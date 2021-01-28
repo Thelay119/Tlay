@@ -1,0 +1,221 @@
+.pointer{
+    cursor: pointer;
+}
+/* 留言样式开始 */
+#liuyan{
+    /* position: absolute; */
+    position: fixed;
+    top: 0px; left: 0px; right: 0px; bottom: 0px;  
+    background: rgba(36,46,58,0.5);
+    display: none;
+}
+#liuyan #content{
+    width: 550px;
+    height: 300px;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 30px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+#liuyan #content input,#liuyan #content #leaveContent{
+    color: #7a7a7a;
+    font-size: 13px;
+    border: 1px solid #ddd;
+    background-color: #fff;
+    width: 95%;
+    height: 40px;
+    outline: none;
+    line-height: 40px;
+    padding: 0px 10px;
+    margin-bottom: 25px;
+}
+#liuyan #content input#author{
+    width: 67%;
+    margin-right: 15px;
+}
+#liuyan img{
+    width: 40px;
+}
+#liuyan #content #leaveContent{
+    height: 150px;
+    resize: none;
+}
+#liuyan #content #liuyan_btn{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+#liuyan #content #liuyan_btn div{
+    width: 100px;
+    height: 40px;
+    background-color: #ed563b;
+    text-align: center;
+    line-height: 40px;
+    color: #fff;
+    border-radius: 5px;
+}
+#liuyan #content #liuyan_btn div:hover{
+    opacity: 0.8;
+    cursor: pointer;
+}
+/* 留言样式结束 */
+#container{
+    width: 1200px;
+    margin: 0px auto;
+}
+#top{
+    height: 100px;
+    box-shadow: 0px 0px 10px rgba(0,0,0,0.15);
+}
+#top #top_left{
+    float: left;
+    padding: 10px 0px 10px 25px;
+}
+#top #top_left img{
+    height: 80px;
+}
+#top #top_right{
+    float: right;
+    width: 450px;
+    height: 100px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+#top #top_right div{
+    background:#ed563b;
+    height: 50px;
+    width: 110px;
+    text-align: center;
+    line-height: 50px;
+    color: #ffffff;
+    font-size: 15px;
+    border-radius: 3px;
+    opacity: 1;
+    transition: opacity 0.4s ease-in 0s;
+}
+#top #top_right div:hover{
+    opacity: 0.6;
+}
+/* top结束结束结束 */
+#zhanshi{
+    height: 160px;
+    padding: 20px 0px;
+}
+#zhanshi h2{
+    font-size: 28px;
+    font-weight: 800;
+    color: #232d39;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+}
+#zhanshi img{
+    margin: 20px auto;
+    display: block;
+}
+#zhanshi p{
+    font-size: 14px;
+    line-height: 25px;
+    color: #7a7a7a;
+    width: 600px;
+    margin: 0px auto;
+    text-indent:2em
+}
+
+/* 留言内容开始 */
+#con_content{
+    height: 432px;
+    margin-top:20px;
+    margin-bottom: 70px;
+    position: relative;
+}
+.content_box{
+    height: 130px;
+    width: 600px;
+    float: left;
+    display: none;
+}
+.content_box .box_face{
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    width: 100px;
+    height: 100px;
+    background: #ed563b;
+    border-radius: 3px;
+    margin-right: 20px;
+    float: left;
+}
+.content_box .box_face img{
+    width: 50px;
+    border: 10px solid rgba(00,00,00, .1);
+    padding: 15px;
+    border-radius:2px ;
+
+}
+.content_box .box_content{
+    float: left;
+    width: 450px;
+}
+.content_box .box_content .box_author{
+    color: #232d39;
+    font-size: 19px;
+}
+.content_box .box_content .box_time{
+    color: #7a7a7a;
+    font-size: 12px;
+}
+.content_box .box_content .box_leaveContent{
+    padding-top:5px;
+    font-size: 15px;
+    line-height: 20px;
+    color: #423e3e;
+    height: 40px;
+}
+.content_box .box_content .box_aaa{
+    font-size: 14px;
+    color:#ed563b;
+}
+.content_box .box_content #box_ready{
+    font-size: 14px;
+    color: #7a7a7a;
+}
+#footer{
+    height: 80px;
+    border-top: 1px solid #345345;
+    text-align: center;
+}
+#pagebtn{clear: both;}
+#upbtn,#dowbtn,#pagebtn p{
+    float: right;
+}
+#pagebtn p{
+    padding: 18px 20px 0px 0px;
+}
+#upbtn,#dowbtn{
+    width: 80px;
+    height: 25px;
+    border: 4px solid #ed563b;
+    text-align: center;
+    font-size: 10px;
+    color: #ed563b;
+    margin: 0px 20px;
+    border-radius: 8px;
+    padding-top: 8px;
+}
+#pagebtn{
+    overflow: hidden;
+    position: absolute;
+    bottom: 0px;
+    left: 750px;
+}
+#pagebtn #pagecount, #pagebtn #page{
+    color: #ed563b;
+}
+#footer p{
+    line-height: 80px;
+}
